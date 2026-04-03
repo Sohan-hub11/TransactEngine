@@ -1,0 +1,27 @@
+{
+  "name": "transactengine",
+  "version": "1.0.0",
+  "description": "A Real-World Secure Banking Backend System (Node.js, Express, MongoDB, JWT). It covers authentication, account management, transactions, ledger handling, and backend architecture.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx nodemon server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sohan-hub11/TransactEngine.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sohan-hub11/TransactEngine/issues"
+  },
+  "homepage": "https://github.com/Sohan-hub11/TransactEngine#readme",
+  "dependencies": {
+    "dotenv": "^17.4.0",
+    "express": "^5.2.1",
+    "mongoose": "^9.3.3"
+  }
+}
