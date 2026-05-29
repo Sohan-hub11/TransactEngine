@@ -33,6 +33,11 @@ async function userRegistrationController(req, res) {
 
   res.cookie("token", token);
 
+  // Send registration email in the background
+  emailService
+    .sendRegistrationEmail(user.email, user.name)
+    .catch(err => console.error("Email failed:", err));
+
   return res.status(201).json({
       status: "success",
       message: "User registered successfully",
@@ -43,9 +48,6 @@ async function userRegistrationController(req, res) {
       },
       token,
       });
-
-  // Send registration email
-  await emailService.sendRegistrationEmail(user.email, user.name);
 }
 
 /**
