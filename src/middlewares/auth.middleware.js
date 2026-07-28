@@ -10,10 +10,14 @@ async function authMiddleware (req, res, next){
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded Token:", decoded);
+    // console.log("Decoded Token:", decoded);
 
     const user = await userModel.findById(decoded.userId);
-    console.log("Found User:", user);
+    // console.log("Found User:", user);
+
+    // const users = await userModel.find();
+    // console.log("All Users:", users);
+
     req.user = user; // Attach user information to the request object for downstream use.
     return next();
 
