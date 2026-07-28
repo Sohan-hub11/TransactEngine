@@ -27,7 +27,7 @@ async function userRegistrationController(req, res) {
     password,
   })
   
-  const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {
+  const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, {
     expiresIn: "3d",
   })
 
@@ -75,7 +75,7 @@ async function userLoginController(req, res) {
     })
   }
 
-  const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {
+  const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, {
     expiresIn: "3d",
   })
 
