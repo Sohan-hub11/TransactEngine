@@ -38,6 +38,7 @@ const sendEmail = async (to, subject, text, html) => {
   }
 };
 
+// Function to send registration email
 async function sendRegistrationEmail(userEmail, name) {
   const subject = 'Welcome to Transact Engine!';
   const text = `Hi ${name},\n\nWelcome to Transact Engine! We're excited to have you on board.\n\nBest regards,\nThe Transact Engine Team`;
@@ -50,4 +51,30 @@ async function sendRegistrationEmail(userEmail, name) {
   await sendEmail(userEmail, subject, text, html);
 }
 
-module.exports = { sendRegistrationEmail };
+// Function to send transaction email
+async function sendTransactionEmail(userEmail, name, amount, toAccount) {
+  const subject = 'Transaction Successful!';
+  const text = `Hi ${name},\n\nYour transaction of $${amount} to account ${toAccount} was successful.\n\nBest regards,\nThe Transact Engine Team`;
+  const html = `
+    <p>Hi ${name},</p>
+    <p>Your transaction of $${amount} to account ${toAccount} was successful.</p>
+    <p>Best regards,<br>The Transact Engine Team</p>
+  `;
+
+  await sendEmail(userEmail, subject, text, html);
+}
+
+async function sendTransactionFailureEmail(userEmail, name, amount, toAccount) {
+  const subject = 'Transaction Failed';
+  const text = `Hi ${name},\n\nYour transaction of $${amount} to account ${toAccount} has failed.\n\nPlease try again later.\n\nBest regards,\nThe Transact Engine Team`;
+  const html = `
+    <p>Hi ${name},</p>
+    <p>Your transaction of $${amount} to account ${toAccount} has failed.</p>
+    <p>Please try again later.</p>
+    <p>Best regards,<br>The Transact Engine Team</p>
+  `;
+
+  await sendEmail(userEmail, subject, text, html);
+}
+
+module.exports = { sendRegistrationEmail, sendTransactionEmail, sendTransactionFailureEmail }; 

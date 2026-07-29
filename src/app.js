@@ -13,6 +13,7 @@ app.use(cookieParser()); // Middleware to parse cookies.
  */
 const authRoutes = require('./routes/auth.route');
 const accountRoutes = require('./routes/account.route');
+const transactionRoutes = require('./routes/transaction.route');
 
 
 /**
@@ -20,6 +21,7 @@ const accountRoutes = require('./routes/account.route');
  */
 app.use("/api/auth", authRoutes);
 app.use("/api/accounts", accountRoutes);
+app.use("/api/transactions", transactionRoutes);
 
 
 
