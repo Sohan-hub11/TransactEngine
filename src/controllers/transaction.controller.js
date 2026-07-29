@@ -17,3 +17,14 @@ const emailService = require('../services/email.service');
      * 9. Commit MongoDB session
      * 10. Send email notification
  */
+
+async function createTransaction(req, res) {
+    const { fromAccount, toAccount, amount, idempotencyKey } = req.body;
+
+
+}
+
+
+module.exports = {
+    createTransaction
+};

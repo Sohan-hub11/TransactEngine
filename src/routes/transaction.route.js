@@ -7,7 +7,7 @@ const transactionRoutes = Router();
  * - POST /api/transactions/
  * - Create a new transaction
  */
-transactionRoutes.post('/', )
+transactionRoutes.post('/', transactionController.createTransaction);
 
 
 module.exports = transactionRoutes;

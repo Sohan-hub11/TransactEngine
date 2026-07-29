@@ -20,6 +20,12 @@ const userSchema = new mongoose.Schema({
     minlength: [6, "Password must be at least 6 characters long"],
     select: false, // Exclude password from query results by default
   },
+  systemUser: {
+    type: Boolean,
+    default: false,
+    immutable: true, // Prevent modification of systemUser field after creation
+    select: false // Exclude systemUser from query results by default
+  }
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) { // Hash the password before saving the user document.
