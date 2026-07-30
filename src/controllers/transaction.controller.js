@@ -52,10 +52,124 @@ async function createTransaction(req, res) {
      * Check if a transaction with the same idempotency key already exists.
      * If it does, return the existing transaction to ensure idempotency.
      */
-    const existingTransaction = await transactionModel.findOne({ idempotencyKey });
+    const isTransactionAlreadyExists = await transactionModel.findOne({ idempotencyKey: idempotencyKey });
+
+    if (isTransactionAlreadyExists) {
+        if (isTransactionAlreadyExists.status === "COMPLETED") {
+            return res.status(200).json({
+                message: "Transaction already processed",
+                transaction: isTransactionAlreadyExists
+            })
+
+        }
+
+        if (isTransactionAlreadyExists.status === "PENDING") {
+            return res.status(200).json({
+                message: "Transaction is still processing",
+            })
+        }
+
+        if (isTransactionAlreadyExists.status === "FAILED") {
+            return res.status(500).json({
+                message: "Transaction processing failed, please retry"
+            })
+        }
+
+        if (isTransactionAlreadyExists.status === "REVERSED") {
+            return res.status(500).json({
+                message: "Transaction was reversed, please retry"
+            })
+        }
+    }
+
+    /**
+     * Step 3: Check account status
+     * Ensure both the sender and receiver accounts are active before proceeding with the transaction.
+     */
+
+    if(fromUserAccount.status !== "ACTIVE" || toUserAccount.status !== "ACTIVE") {
+        return res.status(400).json({
+            message: "Both fromAccount and toAccount must be ACTIVE"
+        })
+    }
+
+    /**
+     * Step 4: Derive sender balance from ledger
+     * Calculate the sender's balance by aggregating all DEBIT and CREDIT ledger entries.
+     * If the sender's balance is insufficient for the transaction amount, return an error.
+     */
+
+    const balance = await fromUserAccount.getBalance();
+
+    if(balance < amount) {
+        return res.status(400).json({
+            message: `Insufficient balance! Current balance is ${balance} and Requested amount is ${amount}`
+        })
+    }
      
+    /**
+     * Step 5-9: Create transaction (PENDING)
+     */
+    
+    let transaction;
+    try {
+        const session = await mongoose.startSession()
+        session.startTransaction()
+
+        transaction = (await transactionModel.create([ {
+            fromAccount,
+            toAccount,
+            amount,
+            idempotencyKey,
+            status: "PENDING"
+        } ], { session }))[ 0 ]
+
+        const debitLedgerEntry = await ledgerModel.create([ {
+            account: fromAccount,
+            amount: amount,
+            transaction: transaction._id,
+            type: "DEBIT"
+        } ], { session })
+
+        await (() => {
+            return new Promise((resolve) => setTimeout(resolve, 15 * 1000));
+        })()
+
+        const creditLedgerEntry = await ledgerModel.create([ {
+            account: toAccount,
+            amount: amount,
+            transaction: transaction._id,
+            type: "CREDIT"
+        } ], { session })
+
+        await transactionModel.findOneAndUpdate(
+            { _id: transaction._id },
+            { status: "COMPLETED" },
+            { session }
+        )
 
 
+        await session.commitTransaction()
+        session.endSession()
+
+    } catch (error) {
+
+        return res.status(400).json({
+            message: "Transaction is Pending due to some issue, please retry after sometime",
+        })
+
+    }
+
+    /**
+     * Step 10: Send email notification
+     */
+
+    await emailService.sendTransactionEmail(req.user.email, req.user.name, amount, toAccount)
+    
+    return res.status(201).json({
+        message: "Transaction completed successfully",
+        transaction: transaction
+    })
 
 }
 
