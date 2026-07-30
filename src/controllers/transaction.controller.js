@@ -21,7 +21,40 @@ const mongoose = require('mongoose');
  */
 
 async function createTransaction(req, res) {
+    
+    /**
+     * Step 1: Validate request
+     */
     const { fromAccount, toAccount, amount, idempotencyKey } = req.body;
+
+    if(!fromAccount || !toAccount || !amount || !idempotencyKey) {
+        return res.status(400).json({
+            message: "fromAccount, toAccount, amount and idempotencyKey are required"
+        })
+    }
+
+    const fromUserAccount = await accountModel.findOne({
+        _id: fromAccount,
+    })
+
+    const toUserAccount = await accountModel.findOne({
+        _id: toAccount,
+    })
+
+    if (!fromUserAccount || !toUserAccount) {
+        return res.status(400).json({
+            message: "Invalid fromAccount or toAccount"
+        })
+    }
+
+    /**
+     * Step 2: Validate idempotency key
+     * Check if a transaction with the same idempotency key already exists.
+     * If it does, return the existing transaction to ensure idempotency.
+     */
+    const existingTransaction = await transactionModel.findOne({ idempotencyKey });
+     
+
 
 
 }

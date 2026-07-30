@@ -11,5 +11,12 @@ async function createAccountController(req, res){
   res.status(201).json({ message: "Account created successfully", account });
 }
 
+async function getUserAccountsController(req, res) {
+  const accounts = await accountModel.find({ user: req.user._id });
 
-module.exports = { createAccountController };
+    res.status(200).json({
+        accounts
+    })
+}
+
+module.exports = { createAccountController, getUserAccountsController };
